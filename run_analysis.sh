@@ -1,9 +1,9 @@
 #!/bin/bash
 
 ##Coded by Heena Ambreen : h.ambreen@exeter.ac.uk
-##This pipeline is used for peak calling using CHIP-seq data "Paired end"; Adapted from Jess's ChIP-seq-peakcaller @ https://github.com/jessica-a-taylor/ChIP-seq-peakcaller/tree/main
+##Processes ChIP-seq data (paired-end) and performs peak-calling with macs2, approximating the established REMAP pipeline (https://doi.org/10.1093/nar/gkab996).
 
-#Usage: bash peakcalling_PE1.sh $1 $2
+#Usage: bash run_analysis.sh $1 $2
 
 ##Pre-requisites and dependencies
 ##sra-toolkit trim-galore bowtie2 samtooos bedtools python3-biopython macs2 
