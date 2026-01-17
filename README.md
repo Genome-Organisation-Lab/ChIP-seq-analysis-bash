@@ -19,7 +19,7 @@ Inputs should not include .fastq extension.
 
 ## Customisation
 
-The pipeline runs in 5 main stages, each of which needs to be configured based on the specifications for the analysis.
+The pipeline runs in 5 main stages, each of which needs to be configured based on the input specifications.
 
 *fastaLength* is calculated using
 ```
@@ -28,7 +28,7 @@ $ getFastaLength.py genomeFasta
 
 ## Output
 For each input, MACS2 putputs two directories:
-* {Test_Rep}peakCallingResultsNarrow contains narrow peaks files
-* {Test_Rep}peakCallingResultsBroad contains broad peaks files
+* {Test_RepN}peakCallingResultsNarrow contains narrow peaks files
+* {Test_RepN}peakCallingResultsBroad contains broad peaks files
 
 Outputs from multiple replicates will be merged.
