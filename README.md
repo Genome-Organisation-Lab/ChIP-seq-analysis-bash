@@ -13,18 +13,18 @@ A bash script for paired-end ChIP-seq data processing and peak-calling, based on
 
 ## Usage
 ```
-$ bash run_analysis.sh {Test_Rep1} {Control_Rep1} {Test_Rep2} {Control_Rep2}
+$ bash run_analysis.sh Test_Rep1 ( Control_Rep1 Test_Rep2 Control_Rep2 )
 ```
 Inputs should not include .fastq extension. 
 
-Inclusion of multiple replicates and controls should be specified in the script under
-
-> ##Read inputs
-
-
 ## Customisation
 
-The pipeline runs in 5 main stages, each of which needs to be configured based on the input specifications.
+The pipeline runs in 5 main stages, each of which needs to be configured based on the specifications for the analysis.
+
+*fastaLength* is calculated using
+```
+$ getFastaLength.py genomeFasta
+```
 
 ## Output
 For each input, MACS2 putputs two directories:
