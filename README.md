@@ -27,7 +27,7 @@ $ getFastaLength.py genomeFasta
 ```
 
 ## Output
-For each input, MACS2 putputs two directories:
+For each input, MACS2 outputs two directories:
 * {Test_RepN}peakCallingResultsNarrow contains narrow peaks files
 * {Test_RepN}peakCallingResultsBroad contains broad peaks files
 
