@@ -6,16 +6,20 @@
 #Usage: bash run_analysis.sh $1 $2
 
 ##Pre-requisites and dependencies
-##sra-toolkit trim-galore bowtie2 samtooos bedtools python3-biopython macs2 
+##sra-toolkit trim-galore bowtie2 samtools bedtools python3-biopython macs2 
 
 ########################################################################################
 
-##Read inputs
+##Read sequence inputs
 ##comment out unused inputs
 Test_Rep1=$1
 Control_Rep1=$2
 Test_Rep2=$3
 Control_Rep2=$4
+
+inDir=/path/to/input/directory
+outDir=/path/to/output/directory
+mkdir -p $outDir
 
 ##Set inputs and parameters
 
@@ -23,29 +27,12 @@ trimCORES=1 ##change based on core availability
 CORES=1 ##change based on core availability
 
 #Reference genome and basic information
-#refDir=/home/data/fus-localiser-js-2023/Epigenetics\CUT_Tag\CUT_Tag_PeakCaller_Main #refDir=/path/to/genome/reference
 genome=GCA_900044135.1_GZPH1RResV1_genomic.fna
 index=PH1
 #fastaLength=$(getFastaLength.py !{genomeFasta})
 fastaLength=59900000 ##analysis from the script
 epiMARK=H3K27me3 ##epigenetic mark under study
 genotype=fusarium ##genotype background under study
-
-#Path to program executables and directories
-raw_TestDir1=/home/data/fus-localiser-js-2023/Epigenetics/CUT_Tag/CUT_Tag_PeakCaller_Main/$Test_Rep1 ##Rep1
-#raw_ControlDir1=/home/data/fus-localiser-js-2023/Epigenetics/CUT_Tag/CUT_Tag_PeakCaller_Main/$Control_Rep1 ##Rep1
-
-#raw_TestDir2=/mnt/RAID/data/sequencing/Heena/Epigenome/$Test_Rep2 ##Rep2
-#raw_ControlDir2=/mnt/RAID/data/sequencing/Heena/Epigenome/$Control_Rep2 ##Rep2
-
-outDir=/home/data/fus-localiser-js-2023/Epigenetics/CUT_Tag/CUT_Tag_PeakCaller_Main/${genotype}_${epiMARK}/analysis
-mkdir -p $outDir
-
-#refDir=/path/to/genome/reference
-refDir=/home/data/fus-localiser-js-2023/Epigenetics/CUT_Tag/CUT_Tag_PeakCaller_Main
-
-#bowtie2Dir=/usr/bin 
-##add tools path if not at the home directory
 
 ########################################################################################
 
@@ -63,14 +50,14 @@ bowtie2-build --threads $CORES $refDir/$genome $index
 
 ##2## Trim the raw "Test" and "Control" ChIP-seq reads using trim galore: paired end
 
-trim_galore --output_dir $outDir/ --length 30 --quality 20 --stringency 1 -e 0.1 --paired -j $trimCORES $raw_TestDir1/${Test_Rep1}_1.fastq $raw_TestDir1/${Test_Rep1}_2.fastq
+trim_galore --output_dir $outDir/ --length 30 --quality 20 --stringency 1 -e 0.1 --paired -j $trimCORES $inDir/${Test_Rep1}_1.fastq $inDir/${Test_Rep1}_2.fastq
 
 ## Un-comment the following commands if if you have "control"
-#trim_galore --output_dir $outDir/ --length 30 --quality 20 --stringency 1 -e 0.1 --paired -j $trimCORES $raw_ControlDir1/${Control_Rep1}_1.fastq $raw_ControlDir1/${Control_Rep1}_2.fastq
+#trim_galore --output_dir $outDir/ --length 30 --quality 20 --stringency 1 -e 0.1 --paired -j $trimCORES $inDir/${Control_Rep1}_1.fastq $inDir/${Control_Rep1}_2.fastq
 
 ## Un-comment the following commands if if you have "replicates"
-#trim_galore --output_dir $outDir/ --length 30 --quality 20 --stringency 1 -e 0.1 --paired -j $CORES $raw_TestDir2/${Test_Rep2}_1.fastq $raw_TestDir2/${Test_Rep2}_2.fastq
-#trim_galore --output_dir $outDir/ --length 30 --quality 20 --stringency 1 -e 0.1 --paired -j $CORES $raw_ControlDir2/${Control_Rep2}_1.fastq $raw_ControlDir2/${Control_Rep2}_2.fastq
+#trim_galore --output_dir $outDir/ --length 30 --quality 20 --stringency 1 -e 0.1 --paired -j $CORES $inDir/${Test_Rep2}_1.fastq $inDir/${Test_Rep2}_2.fastq
+#trim_galore --output_dir $outDir/ --length 30 --quality 20 --stringency 1 -e 0.1 --paired -j $CORES $inDir/${Control_Rep2}_1.fastq $inDir/${Control_Rep2}_2.fastq
 
 echo "Trimming finished for all samples"
 
