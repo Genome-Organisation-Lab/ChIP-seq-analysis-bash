@@ -1,8 +1,10 @@
 #!/bin/bash
 
 ##Processes ChIP-seq data (paired-end) and performs peak-calling with macs2, approximating the established REMAP pipeline (https://doi.org/10.1093/nar/gkab996).
+
 ##For the nextflow version of the analysis pipeline, check the repository "ChIP-seq-analysis-nextflow" (https://github.com/Genome-Organisation-Lab/ChIP-seq-analysis-nextflow).
-#Usage: bash run_analysis.sh $1 $2
+
+#Usage: bash ChIPseq_analysis.sh $1 $2
 
 ##Pre-requisites and dependencies
 ##sra-toolkit trim-galore bowtie2 samtools bedtools python3-biopython macs2 
@@ -24,9 +26,8 @@ Control_Rep2=$4
 #wherever file names, path, or experiment-specific values are defined
 #Edit these fields according to your local set-up and datasets.
 
-inDir=/path/to/input/directory
-outDir=/path/to/output/directory
-mkdir -p $outDir
+#Path to input directory
+inDir=/path/to/input/directory #EDIT path to directory with raw fastq files
 
 #Multi-threading
 trimCORES=1 ##change based on core availability ##For Trim Galore: recommended cores ~4; avoid >8 due to diminishing returns and warnings
@@ -41,18 +42,24 @@ fastaLength=59900000                                 #EDIT based on analysis fro
 epiMARK=H3K27me3                                     #EDIT epigenetic mark under study
 genotype=fusarium                                    #EDIT genotype/background under study
 
+# Create epigenetic mark-specific library
+outDir="/path/to/output/directory/${genotype}_${epiMARK}"
+mkdir -p $outDir
+
 ########################################################################################
 
 ## Run pipeline
-##0## Create epigenetic mark specific library
-mkdir -p $genotype_$epiMARK
-
+#IMPORTANT:
+#Uncomment the appropriate commands below according to available samples
 ########################################################################################
 
 ##1## Building bowtie2 index for reference genome
 
 bowtie2-build --threads $CORES $refDir/$genome $index
 
+echo ""
+echo "1. Building genome index."
+echo ""
 ########################################################################################
 
 ##2## Trim the raw "Sample" and "Control" ChIP-seq reads using trim galore: paired end
@@ -66,8 +73,9 @@ trim_galore --output_dir $outDir/ --length 30 --quality 20 --stringency 1 -e 0.1
 #trim_galore --output_dir $outDir/ --length 30 --quality 20 --stringency 1 -e 0.1 --paired -j $CORES $inDir/${Sample_Rep2}_1.fastq $inDir/${Sample_Rep2}_2.fastq
 #trim_galore --output_dir $outDir/ --length 30 --quality 20 --stringency 1 -e 0.1 --paired -j $CORES $inDir/${Control_Rep2}_1.fastq $inDir/${Control_Rep2}_2.fastq
 
-echo "Trimming finished for all samples"
-
+echo ""
+echo "2. Trimming finished for all samples"
+echo ""
 ########################################################################################
 
 ##3## Align the QC test and control reads against the genome using bowtie2
@@ -90,8 +98,9 @@ samtools index --threads $CORES $outDir/${Sample_Rep1}.bam
 #samtools view --threads $CORES -bhS $outDir/${Control_Rep2}.sam -o $outDir/${Control_Rep2}.bam
 #samtools index --threads $CORES $outDir/${Control_Rep2}.bam
 
-echo "Mapping finished for all samples"
-
+echo ""
+echo "3. Mapping on reference genome finished for all samples"
+echo ""
 ########################################################################################
 
 ##4## Use samtools to remove PCR duplicates
@@ -122,8 +131,9 @@ samtools index --threads $CORES $outDir/${Sample_Rep1}_deduplicated.bam
 #samtools markdup --threads $CORES -O BAM -r $outDir/${Control_Rep2}_sorted.scored.sorted.sam $outDir/${Control_Rep2}_deduplicated.bam
 #samtools index --threads $CORES $outDir/${Control_Rep2}_deduplicated.bam
 
-echo "PCR duplicates removed"
-
+echo ""
+echo "4. PCR duplicates removed"
+echo ""
 ########################################################################################
 
 ##5## Call both broad and narrow peaks using the MACS2 peakcaller
@@ -142,8 +152,9 @@ macs2 callpeak -g $fastaLength -q 0.00001 -t $outDir/${Sample_Rep1}_deduplicated
 #macs2 callpeak -c $outDir/${Control_Rep2}_deduplicated.bam --broad -g $fastaLength -q 0.00001 -t $outDir/${Sample_Rep2}_deduplicated.bam --outdir $outDir --name ${Sample_Rep2}_broad -f BAMPE  --broad-cutoff 0.00001
 #macs2 callpeak -c $outDir/${Control_Rep2}_deduplicated.bam -g $fastaLength -q 0.00001 -t $outDir/${Sample_Rep2}_deduplicated.bam --outdir $outDir --name ${Sample_Rep2}_broad -f BAMPE
 
-echo "Peak calling finished"
-
+echo ""
+echo "5. Peak calling through MACS2 finished"
+echo ""
 ## Merge replicates 
 
 cat $outDir/*_peaks.narrowPeak > $outDir/unmergedNarrowPeaks.bed
@@ -153,9 +164,12 @@ bedtools merge -i $outDir/unmergedNarrowPeaks.sorted.bed > $outDir/${genotype}_$
 cat $outDir/*_peaks.broadPeak > $outDir/unmergedBroadPeaks.bed
 sort -k1,1 -k2,2n $outDir/unmergedBroadPeaks.bed > $outDir/unmergedBroadPeaks.sorted.bed
 bedtools merge -i $outDir/unmergedBroadPeaks.sorted.bed > $outDir/${genotype}_${epiMARK}_mergedBroadPeaks.bed
-    
+
+##Comment out if you need to delete the intermediate files
 #rm $outDir/*.sam
 #rm $outDir/*.fq
 #rm $outDir/*_trimming_report.txt
-    
-echo "peak_calling pipeline finished for ${genotype}_${epiMARK}"
+
+echo ""
+echo "ChIP-seq peak_calling pipeline finished for ${genotype}_${epiMARK}"
+echo ""
