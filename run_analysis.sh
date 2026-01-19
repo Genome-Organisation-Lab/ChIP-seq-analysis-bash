@@ -12,9 +12,9 @@
 
 ##Read sequence inputs
 ##comment out unused inputs
-Test_Rep1=$1
+Sample_Rep1=$1
 Control_Rep1=$2
-Test_Rep2=$3
+Sample_Rep2=$3
 Control_Rep2=$4
 
 inDir=/path/to/input/directory
@@ -48,15 +48,15 @@ bowtie2-build --threads $CORES $refDir/$genome $index
 
 ########################################################################################
 
-##2## Trim the raw "Test" and "Control" ChIP-seq reads using trim galore: paired end
+##2## Trim the raw "Sample" and "Control" ChIP-seq reads using trim galore: paired end
 
-trim_galore --output_dir $outDir/ --length 30 --quality 20 --stringency 1 -e 0.1 --paired -j $trimCORES $inDir/${Test_Rep1}_1.fastq $inDir/${Test_Rep1}_2.fastq
+trim_galore --output_dir $outDir/ --length 30 --quality 20 --stringency 1 -e 0.1 --paired -j $trimCORES $inDir/${Sample_Rep1}_1.fastq $inDir/${Sample_Rep1}_2.fastq
 
-## Un-comment the following commands if if you have "control"
+## Un-comment the following commands if you have "control"
 #trim_galore --output_dir $outDir/ --length 30 --quality 20 --stringency 1 -e 0.1 --paired -j $trimCORES $inDir/${Control_Rep1}_1.fastq $inDir/${Control_Rep1}_2.fastq
 
-## Un-comment the following commands if if you have "replicates"
-#trim_galore --output_dir $outDir/ --length 30 --quality 20 --stringency 1 -e 0.1 --paired -j $CORES $inDir/${Test_Rep2}_1.fastq $inDir/${Test_Rep2}_2.fastq
+## Un-comment the following commands if you have "replicates"
+#trim_galore --output_dir $outDir/ --length 30 --quality 20 --stringency 1 -e 0.1 --paired -j $CORES $inDir/${Sample_Rep2}_1.fastq $inDir/${Sample_Rep2}_2.fastq
 #trim_galore --output_dir $outDir/ --length 30 --quality 20 --stringency 1 -e 0.1 --paired -j $CORES $inDir/${Control_Rep2}_1.fastq $inDir/${Control_Rep2}_2.fastq
 
 echo "Trimming finished for all samples"
@@ -65,18 +65,23 @@ echo "Trimming finished for all samples"
 
 ##3## Align the QC test and control reads against the genome using bowtie2
 
-bowtie2 --threads $CORES --local --very-sensitive-local --no-unal --no-mixed --no-discordant --phred33 -I 10 X 700 -x $refDir/$index -1 $outDir/${Test_Rep1}_1_val_1.fq -2 $outDir/${Test_Rep1}_2_val_2.fq -S $outDir/$Test_Rep1.sam 
+bowtie2 --threads $CORES --local --very-sensitive-local --no-unal --no-mixed --no-discordant --phred33 -I 10 X 700 -x $refDir/$index -1 $outDir/${Sample_Rep1}_1_val_1.fq -2 $outDir/${Sample_Rep1}_2_val_2.fq -S $outDir/$Sample_Rep1.sam 
+samtools view --threads $CORES -bhS $outDir/${Sample_Rep1}.sam -o $outDir/${Sample_Rep1}.bam
+samtools index --threads $CORES $outDir/${Sample_Rep1}.bam
 
-## Un-comment the following commands if if you have "control"
+## Un-comment the following commands if you have "control"
 #bowtie2 --threads $CORES --local --very-sensitive-local --no-unal --no-mixed --no-discordant --phred33 -I 10 X 700 -x $refDir/$index -1 $outDir/${Control_Rep1}_1_val_1.fq -2 $outDir/${Control_Rep1}_2_val_2.fq -S $outDir/$Control_Rep1.sam 
+#samtools view --threads $CORES -bhS $outDir/${Control_Rep1}.sam -o $outDir/${Control_Rep1}.bam
+#samtools index --threads $CORES $outDir/${Control_Rep1}.bam
 
-## Un-comment the following commands if if you have "replicates"
-#bowtie2 --threads $CORES --local --very-sensitive-local --no-unal --no-mixed --no-discordant --phred33 -I 10 X 700 -x $refDir/$index -1 $outDir/${Test_Rep2}_1_val_1.fq -2 $outDir/${Test_Rep2}_2_val_2.fq -S $outDir/$Test_Rep2.sam 
+## Un-comment the following commands if you have "replicates"
+#bowtie2 --threads $CORES --local --very-sensitive-local --no-unal --no-mixed --no-discordant --phred33 -I 10 X 700 -x $refDir/$index -1 $outDir/${Sample_Rep2}_1_val_1.fq -2 $outDir/${Sample_Rep2}_2_val_2.fq -S $outDir/$Sample_Rep2.sam 
+#samtools view --threads $CORES -bhS $outDir/${Sample_Rep2}.sam -o $outDir/${Sample_Rep2}.bam
+#samtools index --threads $CORES $outDir/${Sample_Rep2}.bam
+
 #bowtie2 --threads $CORES --local --very-sensitive-local --no-unal --no-mixed --no-discordant --phred33 -I 10 X 700 -x $refDir/$index -1 $outDir/${Control_Rep2}_1_val_1.fq -2 $outDir/${Control_Rep2}_2_val_2.fq -S $outDir/$Control_Rep2.sam 
-
-
-samtools view --threads $CORES -bhS $outDir/$Test_Rep1.sam -o $outDir/$Test_Rep1.bam
-samtools index --threads $CORES $outDir/${Test_Rep1}.bam
+#samtools view --threads $CORES -bhS $outDir/${Control_Rep2}.sam -o $outDir/${Control_Rep2}.bam
+#samtools index --threads $CORES $outDir/${Control_Rep2}.bam
 
 echo "Mapping finished for all samples"
 
@@ -84,24 +89,24 @@ echo "Mapping finished for all samples"
 
 ##4## Use samtools to remove PCR duplicates
 
-samtools sort --threads $CORES -n $outDir/${Test_Rep1}.sam -o $outDir/${Test_Rep1}_sorted.sam 
-samtools fixmate --threads $CORES -m $outDir/${Test_Rep1}_sorted.sam $outDir/${Test_Rep1}_sorted.scored.sam  # m - add mate tag
-samtools sort --threads $CORES $outDir/${Test_Rep1}_sorted.scored.sam -o $outDir/${Test_Rep1}_sorted.scored.sorted.sam
-samtools markdup --threads $CORES -O BAM -r $outDir/${Test_Rep1}_sorted.scored.sorted.sam $outDir/${Test_Rep1}_deduplicated.bam #r - remove duplicate reads
-samtools index --threads $CORES $outDir/${Test_Rep1}_deduplicated.bam
+samtools sort --threads $CORES -n $outDir/${Sample_Rep1}.sam -o $outDir/${Sample_Rep1}_sorted.sam 
+samtools fixmate --threads $CORES -m $outDir/${Sample_Rep1}_sorted.sam $outDir/${Sample_Rep1}_sorted.scored.sam  # m - add mate tag
+samtools sort --threads $CORES $outDir/${Sample_Rep1}_sorted.scored.sam -o $outDir/${Sample_Rep1}_sorted.scored.sorted.sam
+samtools markdup --threads $CORES -O BAM -r $outDir/${Sample_Rep1}_sorted.scored.sorted.sam $outDir/${Sample_Rep1}_deduplicated.bam #r - remove duplicate reads
+samtools index --threads $CORES $outDir/${Sample_Rep1}_deduplicated.bam
 
-## Un-comment the following commands if if you have "control"
+## Un-comment the following commands if you have "control"
 #samtools sort --threads $CORES -n $outDir/${Control_Rep1}.sam -o $outDir/${Control_Rep1}_sorted.sam 
 #samtools fixmate --threads $CORES -m $outDir/${Control_Rep1}_sorted.sam $outDir/${Control_Rep1}_sorted.scored.sam 
 #samtools sort --threads $CORES $outDir/${Control_Rep1}_sorted.scored.sam -o $outDir/${Control_Rep1}_sorted.scored.sorted.sam
 #samtools markdup --threads $CORES -O BAM -r $outDir/${Control_Rep1}_sorted.scored.sorted.sam $outDir/${Control_Rep1}_deduplicated.bam
-#samtools index --threads $CORES $outDir/${Test_Rep2}_deduplicated.bam
+#samtools index --threads $CORES $outDir/${Sample_Rep2}_deduplicated.bam
 
-## Un-comment the following commands if if you have "replicates"
-#samtools sort --threads $CORES -n $outDir/${Test_Rep2}.sam -o $outDir/${Test_Rep2}_sorted.sam 
-#samtools fixmate --threads $CORES -m $outDir/${Test_Rep2}_sorted.sam $outDir/${Test_Rep2}_sorted.scored.sam 
-#samtools sort --threads $CORES $outDir/${Test_Rep2}_sorted.scored.sam -o $outDir/${Test_Rep2}_sorted.scored.sorted.sam
-#samtools markdup --threads $CORES -O BAM -r $outDir/${Test_Rep2}_sorted.scored.sorted.sam $outDir/${Test_Rep2}_deduplicated.bam
+## Un-comment the following commands if you have "replicates"
+#samtools sort --threads $CORES -n $outDir/${Sample_Rep2}.sam -o $outDir/${Sample_Rep2}_sorted.sam 
+#samtools fixmate --threads $CORES -m $outDir/${Sample_Rep2}_sorted.sam $outDir/${Sample_Rep2}_sorted.scored.sam 
+#samtools sort --threads $CORES $outDir/${Sample_Rep2}_sorted.scored.sam -o $outDir/${Sample_Rep2}_sorted.scored.sorted.sam
+#samtools markdup --threads $CORES -O BAM -r $outDir/${Sample_Rep2}_sorted.scored.sorted.sam $outDir/${Sample_Rep2}_deduplicated.bam
 #samtools index --threads $CORES $outDir/${Control_Rep1}_deduplicated.bam
 
 #samtools sort --threads $CORES -n $outDir/${Control_Rep2}.sam -o $outDir/${Control_Rep2}_sorted.sam 
@@ -116,19 +121,19 @@ echo "PCR duplicates removed"
 
 ##5## Call both broad and narrow peaks using the MACS2 peakcaller
 
-macs2 callpeak --broad -g $fastaLength -q 0.00001 -t $outDir/${Test_Rep1}_deduplicated.bam --outdir $outDir --name ${Test_Rep1}_broad -f BAMPE  --broad-cutoff 0.00001
-macs2 callpeak -g $fastaLength -q 0.00001 -t $outDir/${Test_Rep1}_deduplicated.bam --outdir $outDir --name ${Test_Rep1}_narrow -f BAMPE
+macs2 callpeak --broad -g $fastaLength -q 0.00001 -t $outDir/${Sample_Rep1}_deduplicated.bam --outdir $outDir --name ${Sample_Rep1}_broad -f BAMPE  --broad-cutoff 0.00001
+macs2 callpeak -g $fastaLength -q 0.00001 -t $outDir/${Sample_Rep1}_deduplicated.bam --outdir $outDir --name ${Sample_Rep1}_narrow -f BAMPE
 
-## Un-comment the following commands if if you have "control"
-#macs2 callpeak -c $outDir/${Control_Rep1}_deduplicated.bam --broad -g $fastaLength -q 0.00001 -t $outDir/${Test_Rep1}_deduplicated.bam --outdir $outDir --name ${Test_Rep1}_broad -f BAMPE  --broad-cutoff 0.00001
-#macs2 callpeak -c $outDir/${Control_Rep1}_deduplicated.bam -g $fastaLength -q 0.00001 -t $outDir/${Test_Rep1}_deduplicated.bam --outdir $outDir --name ${Test_Rep1}_broad -f BAMPE
+## Un-comment the following commands if you have "control"
+#macs2 callpeak -c $outDir/${Control_Rep1}_deduplicated.bam --broad -g $fastaLength -q 0.00001 -t $outDir/${Sample_Rep1}_deduplicated.bam --outdir $outDir --name ${Sample_Rep1}_broad -f BAMPE  --broad-cutoff 0.00001
+#macs2 callpeak -c $outDir/${Control_Rep1}_deduplicated.bam -g $fastaLength -q 0.00001 -t $outDir/${Sample_Rep1}_deduplicated.bam --outdir $outDir --name ${Sample_Rep1}_broad -f BAMPE
 
-## Un-comment the following commands if if you have "replicates"
-#macs2 callpeak --broad -g $fastaLength -q 0.00001 -t $outDir/${Test_Rep2}_deduplicated.bam --outdir $outDir --name ${Test_Rep2}_broad -f BAMPE  --broad-cutoff 0.00001
-#macs2 callpeak -g $fastaLength -q 0.00001 -t $outDir/${Test_Rep2}_deduplicated.bam --outdir $outDir --name ${Test_Rep2}_narrow -f BAMPE
+## Un-comment the following commands if you have "replicates"
+#macs2 callpeak --broad -g $fastaLength -q 0.00001 -t $outDir/${Sample_Rep2}_deduplicated.bam --outdir $outDir --name ${Sample_Rep2}_broad -f BAMPE  --broad-cutoff 0.00001
+#macs2 callpeak -g $fastaLength -q 0.00001 -t $outDir/${Sample_Rep2}_deduplicated.bam --outdir $outDir --name ${Sample_Rep2}_narrow -f BAMPE
 
-#macs2 callpeak -c $outDir/${Control_Rep2}_deduplicated.bam --broad -g $fastaLength -q 0.00001 -t $outDir/${Test_Rep2}_deduplicated.bam --outdir $outDir --name ${Test_Rep2}_broad -f BAMPE  --broad-cutoff 0.00001
-#macs2 callpeak -c $outDir/${Control_Rep2}_deduplicated.bam -g $fastaLength -q 0.00001 -t $outDir/${Test_Rep2}_deduplicated.bam --outdir $outDir --name ${Test_Rep2}_broad -f BAMPE
+#macs2 callpeak -c $outDir/${Control_Rep2}_deduplicated.bam --broad -g $fastaLength -q 0.00001 -t $outDir/${Sample_Rep2}_deduplicated.bam --outdir $outDir --name ${Sample_Rep2}_broad -f BAMPE  --broad-cutoff 0.00001
+#macs2 callpeak -c $outDir/${Control_Rep2}_deduplicated.bam -g $fastaLength -q 0.00001 -t $outDir/${Sample_Rep2}_deduplicated.bam --outdir $outDir --name ${Sample_Rep2}_broad -f BAMPE
 
 echo "Peak calling finished"
 
