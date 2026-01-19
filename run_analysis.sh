@@ -143,11 +143,6 @@ macs2 callpeak -g $fastaLength -q 0.00001 -t $outDir/${Test_Rep1}_deduplicated.b
 #macs2 callpeak -c $outDir/${Control_Rep2}_deduplicated.bam --broad -g $fastaLength -q 0.00001 -t $outDir/${Test_Rep2}_deduplicated.bam --outdir $outDir --name ${Test_Rep2}_broad -f BAMPE  --broad-cutoff 0.00001
 #macs2 callpeak -c $outDir/${Control_Rep2}_deduplicated.bam -g $fastaLength -q 0.00001 -t $outDir/${Test_Rep2}_deduplicated.bam --outdir $outDir --name ${Test_Rep2}_broad -f BAMPE
 
-
-#macs2 callpeak -g $fastaLength –p 1e-5 -t $outDir/${Test_Rep1}_deduplicated.bam --outdir $outDir --name ${Test_Rep1}_narrow -f BAMPE –keep-dup all
-#macs2 callpeak—t input_file –p 1e-5 –f BEDPE/BED(Paired End vs. Single End sequencing data) –keep-dup all –n out_name.
-#macs2 callpeak -g $fastaLength -q 0.05 -t $outDir/${Test_Rep1}_deduplicated.bam --outdir $outDir --name ${Test_Rep1}_narrow -f BAMPE --nomodel --extsize 200 
-
 echo "Peak calling finished"
 
 ## Merge replicates 
