@@ -16,22 +16,30 @@ Control_Rep1=$2
 Sample_Rep2=$3
 Control_Rep2=$4
 
+########################################################################################
+###USER INPUT SECTION
+##Set inputs and parameters
+#IMPORTANT:
+#Before running the script, update the variables below
+#wherever file names, path, or experiment-specific values are defined
+#Edit these fields according to your local set-up and datasets.
+
 inDir=/path/to/input/directory
 outDir=/path/to/output/directory
 mkdir -p $outDir
 
-##Set inputs and parameters
-
-trimCORES=1 ##change based on core availability
+#Multi-threading
+trimCORES=1 ##change based on core availability ##For Trim Galore: recommended cores ~4; avoid >8 due to diminishing returns and warnings
 CORES=1 ##change based on core availability
 
 #Reference genome and basic information
-genome=GCA_900044135.1_GZPH1RResV1_genomic.fna
-index=PH1
-#fastaLength=$(getFastaLength.py !{genomeFasta})
-fastaLength=59900000 ##analysis from the script
-epiMARK=H3K27me3 ##epigenetic mark under study
-genotype=fusarium ##genotype background under study
+refDir=/path/to/reference/genome/directory           #EDIT path to reference genome directory
+genome=GCA_900044135.1_GZPH1RResV1_genomic.fna       #EDIT genome fasta file name
+index=PH1                                            #EDIT genome index prefix
+#fastaLength=$(getFastaLength.py !{genomeFasta})     #Run this script to calculate genome length
+fastaLength=59900000                                 #EDIT based on analysis from the script "getFastaLength.py"
+epiMARK=H3K27me3                                     #EDIT epigenetic mark under study
+genotype=fusarium                                    #EDIT genotype/background under study
 
 ########################################################################################
 
