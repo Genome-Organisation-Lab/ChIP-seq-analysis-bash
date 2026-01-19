@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ##Processes ChIP-seq data (paired-end) and performs peak-calling with macs2, approximating the established REMAP pipeline (https://doi.org/10.1093/nar/gkab996).
-
+##For the nextflow version of the analysis pipeline, check the repository "ChIP-seq-analysis-nextflow" (https://github.com/Genome-Organisation-Lab/ChIP-seq-analysis-nextflow).
 #Usage: bash run_analysis.sh $1 $2
 
 ##Pre-requisites and dependencies
