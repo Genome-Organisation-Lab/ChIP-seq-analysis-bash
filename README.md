@@ -13,7 +13,7 @@ A bash script for paired-end ChIP-seq data processing and peak-calling, based on
 
 ## Usage
 ```
-$ bash run_analysis.sh Sample_Rep1 ( Control_Rep1 Sample_Rep2 Control_Rep2 )
+$ bash ChIPseq_analysis.sh Sample_Rep1 ( Control_Rep1 Sample_Rep2 Control_Rep2 )
 ```
 Inputs should not include .fastq extension. 
 
