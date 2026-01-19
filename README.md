@@ -32,3 +32,6 @@ For each input, MACS2 outputs two directories:
 * {Test_RepN}peakCallingResultsBroad contains broad peaks files
 
 Outputs from multiple replicates will be merged.
+
+## Credits
+This pipeline was assembled by [Kieran Reynolds](https://github.com/kieranr51), [Jessica Taylor](https://github.com/jessica-a-taylor) and [Heena Ambreen](https://github.com/hAmbreen02).
