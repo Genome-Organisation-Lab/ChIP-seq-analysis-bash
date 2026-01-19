@@ -1,6 +1,5 @@
 #!/bin/bash
 
-##Coded by Heena Ambreen : h.ambreen@exeter.ac.uk
 ##Processes ChIP-seq data (paired-end) and performs peak-calling with macs2, approximating the established REMAP pipeline (https://doi.org/10.1093/nar/gkab996).
 
 #Usage: bash run_analysis.sh $1 $2
