@@ -13,7 +13,7 @@ A bash script for paired-end ChIP-seq data processing and peak-calling, based on
 
 ## Usage
 ```
-$ bash run_analysis.sh Test_Rep1 ( Control_Rep1 Test_Rep2 Control_Rep2 )
+$ bash run_analysis.sh Sample_Rep1 ( Control_Rep1 Sample_Rep2 Control_Rep2 )
 ```
 Inputs should not include .fastq extension. 
 
@@ -27,11 +27,10 @@ $ getFastaLength.py genomeFasta
 ```
 
 ## Output
-For each input, MACS2 outputs two directories:
-* {Test_RepN}peakCallingResultsNarrow contains narrow peaks files
-* {Test_RepN}peakCallingResultsBroad contains broad peaks files
-
-Outputs from multiple replicates will be merged.
+An output directory should be specified into which the following files will be saved:
+* *.sorted.bam* file for each sample and control
+* *.broadPeak* and *.narrowPeak* files for each sample 
+* *.mergedBroadPeaks.bed* and *.mergedNarrowPeaks.bed* files from merging replicates
 
 ## Credits
 This pipeline was assembled by [Kieran Reynolds](https://github.com/kieranr51), [Jessica Taylor](https://github.com/jessica-a-taylor) and [Heena Ambreen](https://github.com/hAmbreen02).
